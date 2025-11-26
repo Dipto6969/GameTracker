@@ -3,7 +3,7 @@
 import { promises as fs } from "fs"
 import path from "path"
 
-const GAMES_KEY = "games:list"
+const GAMES_KEY = "games:hash:v2"
 const GAMES_FILE = path.join(process.cwd(), ".games.json")
 
 export interface StoredGame {
