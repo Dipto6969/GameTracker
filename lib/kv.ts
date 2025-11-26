@@ -69,10 +69,14 @@ async function addGameToKV(game: any): Promise<StoredGame> {
 
   if (kvAvailable && kv) {
     try {
-      await kv.lpush(GAMES_KEY, JSON.stringify(item))
+      console.log("[KV] Adding game to KV:", id)
+      // Store as a hash/object instead of list for better retrieval
+      await kv.hset(GAMES_KEY, { [id]: JSON.stringify(item) })
+      console.log("[KV] Game added successfully to KV")
       return item
     } catch (error) {
-      console.log("[KV] KV operation failed, falling back to file storage:", error)
+      console.error("[KV] KV add operation failed:", error)
+      // Fallback to file storage
       const games = await readGamesFile()
       games.unshift(item)
       await writeGamesFile(games)
@@ -80,6 +84,7 @@ async function addGameToKV(game: any): Promise<StoredGame> {
     }
   } else {
     // Use file-based storage
+    console.log("[KV] KV not available, using file storage")
     const games = await readGamesFile()
     games.unshift(item)
     await writeGamesFile(games)
@@ -91,22 +96,37 @@ async function listGamesFromKV(): Promise<StoredGame[]> {
   try {
     if (kvAvailable && kv) {
       try {
-        const raw = await kv.lrange(GAMES_KEY, 0, 9999)
-        return raw
-          .map((r: string) => {
+        console.log("[KV] Fetching games from KV")
+        const raw = await kv.hgetall(GAMES_KEY)
+        console.log("[KV] Raw KV data:", raw)
+        
+        if (!raw || typeof raw !== 'object') {
+          console.log("[KV] No games found in KV, returning empty array")
+          return []
+        }
+        
+        const games = Object.entries(raw)
+          .map(([key, value]: [string, any]) => {
             try {
-              return JSON.parse(r)
-            } catch {
+              const parsed = typeof value === 'string' ? JSON.parse(value) : value
+              return parsed
+            } catch (e) {
+              console.error("[KV] Failed to parse game:", key, e)
               return null
             }
           })
-          .filter(Boolean)
+          .filter(Boolean) as StoredGame[]
+        
+        console.log("[KV] Successfully retrieved", games.length, "games from KV")
+        return games
       } catch (error) {
-        console.log("[KV] KV operation failed, falling back to file storage:", error)
+        console.error("[KV] KV retrieval failed:", error)
+        console.log("[KV] Falling back to file storage")
         return await readGamesFile()
       }
     } else {
       // Use file-based storage
+      console.log("[KV] KV not available, using file storage")
       return await readGamesFile()
     }
   } catch (error) {
@@ -117,6 +137,17 @@ async function listGamesFromKV(): Promise<StoredGame[]> {
 
 async function getGameFromKVById(id: string): Promise<StoredGame | null> {
   try {
+    if (kvAvailable && kv) {
+      try {
+        const raw = await kv.hget(GAMES_KEY, id)
+        if (!raw) return null
+        return typeof raw === 'string' ? JSON.parse(raw) : raw
+      } catch (error) {
+        console.error("[KV] Get from KV failed:", error)
+      }
+    }
+    
+    // Fallback: get all and find
     const all = await listGamesFromKV()
     return all.find((g) => g._id === id) || null
   } catch (error) {
@@ -139,7 +170,18 @@ async function updateGameInKV(id: string, updates: Partial<StoredGame>): Promise
       ...updates,
     }
 
-    await writeGamesFile(games)
+    // Write back to KV
+    if (kvAvailable && kv) {
+      try {
+        await kv.hset(GAMES_KEY, { [id]: JSON.stringify(games[gameIndex]) })
+      } catch (error) {
+        console.error("[KV] KV update failed:", error)
+      }
+    } else {
+      // Fallback to file
+      await writeGamesFile(games)
+    }
+    
     return games[gameIndex]
   } catch (error) {
     console.error("[KV] Update error:", error)
@@ -157,7 +199,19 @@ async function deleteGameFromKV(id: string): Promise<boolean> {
     }
 
     games.splice(gameIndex, 1)
-    await writeGamesFile(games)
+    
+    // Delete from KV
+    if (kvAvailable && kv) {
+      try {
+        await kv.hdel(GAMES_KEY, [id])
+      } catch (error) {
+        console.error("[KV] KV delete failed:", error)
+      }
+    } else {
+      // Fallback to file
+      await writeGamesFile(games)
+    }
+    
     return true
   } catch (error) {
     console.error("[KV] Delete error:", error)
