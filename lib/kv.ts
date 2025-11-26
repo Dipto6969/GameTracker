@@ -34,11 +34,13 @@ let kvAvailable = false
 let kv: any = null
 
 try {
-  const kvModule = require("@vercel/kv")
-  kv = kvModule.kv
-  kvAvailable = true
+  // Import Vercel KV dynamically
+  const { kv: kvInstance } = require("@vercel/kv")
+  kv = kvInstance
+  kvAvailable = !!kv
+  console.log("[KV] Vercel KV loaded successfully")
 } catch (error) {
-  console.log("[KV] Vercel KV not configured, using file-based storage")
+  console.log("[KV] Vercel KV not configured, using file-based storage:", error)
   kvAvailable = false
 }
 
