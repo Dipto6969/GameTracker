@@ -1,7 +1,0 @@
-{
-  "build": {
-    "env": {
-      "RAWG_API_KEY": "@rawg_api_key"
-    }
-  }
-}
