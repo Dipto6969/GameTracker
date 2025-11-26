@@ -354,7 +354,11 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
           >
             {/* Mark Complete Button */}
             <motion.button
-              onClick={handleMarkComplete}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleMarkComplete(e as any)
+              }}
               disabled={isMarking}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -371,7 +375,11 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
 
             {/* Favorite Button */}
             <motion.button
-              onClick={handleToggleFavorite}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleToggleFavorite(e as any)
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               title={game.isFavorite ? "Remove from favorites" : "Add to favorites"}
@@ -387,7 +395,11 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
 
             {/* Remove Button */}
             <motion.button
-              onClick={handleRemoveGame}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleRemoveGame(e as any)
+              }}
               disabled={isRemoving}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
