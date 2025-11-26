@@ -205,9 +205,9 @@ async function deleteGameFromKV(id: string): Promise<boolean> {
     // Delete from KV first
     if (kvAvailable && kv) {
       try {
-        console.log("[KV] Deleting game from KV:", id)
-        await kv.hdel(GAMES_KEY, [id])
-        console.log("[KV] Game deleted successfully from KV")
+        console.log("[KV] Deleting game from KV with key:", GAMES_KEY, "field:", id)
+        const result = await kv.hdel(GAMES_KEY, id)
+        console.log("[KV] Game deleted successfully from KV, result:", result)
         return true
       } catch (error) {
         console.error("[KV] KV delete failed:", error)
