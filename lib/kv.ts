@@ -158,31 +158,40 @@ async function getGameFromKVById(id: string): Promise<StoredGame | null> {
 
 async function updateGameInKV(id: string, updates: Partial<StoredGame>): Promise<StoredGame | null> {
   try {
+    console.log("[KV] Updating game:", id, updates)
     const games = await listGamesFromKV()
     const gameIndex = games.findIndex((g) => g._id === id)
     
     if (gameIndex === -1) {
+      console.log("[KV] Game not found:", id)
       return null
     }
 
-    games[gameIndex] = {
+    const updatedGame = {
       ...games[gameIndex],
       ...updates,
     }
+    
+    games[gameIndex] = updatedGame
 
     // Write back to KV
     if (kvAvailable && kv) {
       try {
-        await kv.hset(GAMES_KEY, { [id]: JSON.stringify(games[gameIndex]) })
+        console.log("[KV] Updating game in KV:", id)
+        await kv.hset(GAMES_KEY, { [id]: JSON.stringify(updatedGame) })
+        console.log("[KV] Game updated successfully in KV")
       } catch (error) {
         console.error("[KV] KV update failed:", error)
+        // Fallback to file
+        await writeGamesFile(games)
       }
     } else {
-      // Fallback to file
+      // Use file-based storage
+      console.log("[KV] KV not available, updating file storage")
       await writeGamesFile(games)
     }
     
-    return games[gameIndex]
+    return updatedGame
   } catch (error) {
     console.error("[KV] Update error:", error)
     return null
@@ -191,27 +200,33 @@ async function updateGameInKV(id: string, updates: Partial<StoredGame>): Promise
 
 async function deleteGameFromKV(id: string): Promise<boolean> {
   try {
-    const games = await listGamesFromKV()
+    console.log("[KV] Deleting game:", id)
+    
+    // Delete from KV first
+    if (kvAvailable && kv) {
+      try {
+        console.log("[KV] Deleting game from KV:", id)
+        await kv.hdel(GAMES_KEY, [id])
+        console.log("[KV] Game deleted successfully from KV")
+        return true
+      } catch (error) {
+        console.error("[KV] KV delete failed:", error)
+        // Fallback to file
+      }
+    }
+    
+    // Fallback: delete from file
+    console.log("[KV] Deleting from file storage")
+    const games = await readGamesFile()
     const gameIndex = games.findIndex((g) => g._id === id)
     
     if (gameIndex === -1) {
+      console.log("[KV] Game not found in file:", id)
       return false
     }
 
     games.splice(gameIndex, 1)
-    
-    // Delete from KV
-    if (kvAvailable && kv) {
-      try {
-        await kv.hdel(GAMES_KEY, [id])
-      } catch (error) {
-        console.error("[KV] KV delete failed:", error)
-      }
-    } else {
-      // Fallback to file
-      await writeGamesFile(games)
-    }
-    
+    await writeGamesFile(games)
     return true
   } catch (error) {
     console.error("[KV] Delete error:", error)
