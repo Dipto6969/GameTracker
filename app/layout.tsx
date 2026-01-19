@@ -7,14 +7,15 @@ import { DarkModeToggle } from "@/components/dark-mode-toggle"
 import ThemeSwitcher from "@/components/theme-switcher"
 import TrendingGamesModal from "@/components/trending-games-modal"
 import GameAnnouncementsPanel from "@/components/game-announcements-panel"
+import Logo from "@/components/logo"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Game Tracker - Track Your Gaming Library",
-  description: "Search and manage your video game collection with ease",
+  title: "GAME TRACKER // DOMINATE YOUR LIBRARY",
+  description: "Track your grind. Dominate the game. Your ultimate gaming command center.",
   generator: "v0.app",
 }
 
@@ -24,28 +25,25 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${_geist.className} font-sans antialiased bg-white dark:bg-neutral-900`}>
+    <html lang="en" suppressHydrationWarning className="dark">
+      <body className={`${_geist.className} font-sans antialiased bg-neutral-950 cyber-noise cyber-scanlines`}>
         <ThemeProviderClient>
           <ToastProvider>
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-neutral-800/80 border-b border-slate-200 dark:border-neutral-700 shadow-sm backdrop-blur-sm">
-              <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-                <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                    GT
-                  </div>
-                  <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Game Tracker</h1>
-                </a>
-                <nav className="flex gap-6 items-center">
-                  <a href="/" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm font-medium">
-                    📚 Library
+            {/* Cyberpunk Header */}
+            <header className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-purple-500/20 shadow-lg shadow-purple-500/5">
+              <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <Logo />
+                <nav className="flex gap-4 items-center">
+                  <a href="/" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all text-sm font-bold tracking-wide">
+                    LIBRARY
                   </a>
-                  <a href="/search" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm font-medium">
-                    🔍 Search
+                  <a href="/search" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all text-sm font-bold tracking-wide">
+                    SEARCH
                   </a>
-                  <a href="/about" className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm font-medium">
-                    ℹ️ About
+                  <a href="/about" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-green-400 hover:bg-green-500/10 transition-all text-sm font-bold tracking-wide">
+                    ABOUT
                   </a>
+                  <div className="w-px h-6 bg-purple-500/30" />
                   <GameAnnouncementsPanel />
                   <TrendingGamesModal />
                   <ThemeSwitcher />
@@ -53,7 +51,20 @@ export default function RootLayout({
                 </nav>
               </div>
             </header>
-            <main className="max-w-6xl mx-auto px-4 py-8 min-h-screen">{children}</main>
+            <main className="max-w-7xl mx-auto px-4 py-8 min-h-screen">{children}</main>
+            
+            {/* Cyberpunk Footer */}
+            <footer className="border-t border-purple-500/20 py-6 mt-12">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="flex items-center justify-between text-xs font-mono text-slate-600">
+                  <span>© 2026 GAME TRACKER // ALL SYSTEMS NOMINAL</span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    ONLINE
+                  </span>
+                </div>
+              </div>
+            </footer>
           </ToastProvider>
         </ThemeProviderClient>
       </body>

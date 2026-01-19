@@ -55,21 +55,27 @@ export default function RecentlyViewedSidebar({ games, onClear }: RecentlyViewed
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="hidden lg:block w-64 bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto"
+      className="hidden lg:block w-64 bg-slate-900/80 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-6 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto relative"
     >
+      {/* Corner decorations */}
+      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500" />
+      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500" />
+      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500" />
+      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500" />
+
       <div className="flex items-center justify-between mb-4">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-          <Clock size={20} className="text-blue-600 dark:text-blue-400" />
-          Recently Viewed
+        <h2 className="flex items-center gap-2 text-sm font-mono text-cyan-400">
+          <Clock size={16} className="text-cyan-500" />
+          // RECENT
         </h2>
         <motion.button
           onClick={onClear}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="p-1 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded transition-colors"
+          className="p-1.5 hover:bg-red-500/20 border border-transparent hover:border-red-500/50 rounded transition-colors"
           title="Clear history"
         >
-          <Trash2 size={16} className="text-slate-500 dark:text-slate-400" />
+          <Trash2 size={14} className="text-red-400" />
         </motion.button>
       </div>
 
@@ -77,20 +83,20 @@ export default function RecentlyViewedSidebar({ games, onClear }: RecentlyViewed
         {games.map((game) => (
           <motion.div key={game._id} variants={itemVariants}>
             <Link href={`/game/${game._id}`}>
-              <div className="group p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-neutral-600">
+              <div className="group p-3 rounded bg-slate-800/50 hover:bg-cyan-500/10 transition-colors cursor-pointer border border-slate-700/50 hover:border-cyan-500/50">
                 <div className="flex gap-3">
                   {game.background_image && (
                     <img
                       src={game.background_image}
                       alt={game.name}
-                      className="w-12 h-12 rounded object-cover flex-shrink-0"
+                      className="w-12 h-12 rounded object-cover flex-shrink-0 border border-slate-700/50 group-hover:border-cyan-500/50 transition-colors"
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <p className="text-sm font-medium text-slate-200 line-clamp-2 group-hover:text-cyan-400 transition-colors">
                       {game.name}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-slate-500 mt-1 font-mono">
                       {formatTime(game.viewedAt)}
                     </p>
                   </div>
@@ -105,10 +111,10 @@ export default function RecentlyViewedSidebar({ games, onClear }: RecentlyViewed
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="mt-4 pt-4 border-t border-slate-200 dark:border-neutral-700"
+        className="mt-4 pt-4 border-t border-slate-700/50"
       >
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          {games.length} game{games.length !== 1 ? "s" : ""} viewed
+        <p className="text-xs text-slate-500 font-mono">
+          {games.length} TARGET{games.length !== 1 ? "S" : ""} TRACKED
         </p>
       </motion.div>
     </motion.aside>

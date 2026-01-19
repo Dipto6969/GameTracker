@@ -13,11 +13,11 @@ interface GameStatusEditorProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: "playing", label: "🎮 Playing", color: "bg-green-100 text-green-800" },
-  { value: "completed", label: "✓ Completed", color: "bg-blue-100 text-blue-800" },
-  { value: "backlog", label: "📋 Backlog", color: "bg-yellow-100 text-yellow-800" },
-  { value: "dropped", label: "⛔ Dropped", color: "bg-red-100 text-red-800" },
-  { value: "wishlist", label: "⭐ Wishlist", color: "bg-purple-100 text-purple-800" },
+  { value: "playing", label: "▶ ACTIVE", color: "bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30" },
+  { value: "completed", label: "✓ CONQUERED", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/50 hover:bg-cyan-500/30" },
+  { value: "backlog", label: "⏳ QUEUED", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50 hover:bg-yellow-500/30" },
+  { value: "dropped", label: "✗ DROPPED", color: "bg-red-500/20 text-red-400 border-red-500/50 hover:bg-red-500/30" },
+  { value: "wishlist", label: "★ WATCHLIST", color: "bg-purple-500/20 text-purple-400 border-purple-500/50 hover:bg-purple-500/30" },
 ]
 
 export default function GameStatusEditor({
@@ -52,23 +52,30 @@ export default function GameStatusEditor({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 bg-white dark:bg-neutral-800 p-4 rounded-lg border border-slate-200 dark:border-neutral-700"
+      className="relative space-y-6 bg-slate-900/80 p-6 rounded-lg border border-pink-500/20"
     >
+      {/* Corner decorations */}
+      <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-pink-500/50" />
+      <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-pink-500/50" />
+      <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-pink-500/50" />
+      <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-pink-500/50" />
+      
       {/* Status Selection */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-          Status
+        <label className="block text-sm font-mono text-pink-400 mb-3">
+          // STATUS
         </label>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {STATUS_OPTIONS.map((option) => (
             <motion.button
               key={option.value}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setStatus(status === option.value ? "" : option.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 py-2 rounded text-sm font-mono transition-all border ${
                 status === option.value
-                  ? `${option.color} ring-2 ring-offset-2 dark:ring-offset-neutral-800`
-                  : "bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-600"
+                  ? `${option.color} ring-1 ring-offset-1 ring-offset-slate-900`
+                  : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-600 hover:text-slate-300"
               }`}
             >
               {option.label}
@@ -79,17 +86,21 @@ export default function GameStatusEditor({
 
       {/* Rating */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-          Your Rating
+        <label className="block text-sm font-mono text-purple-400 mb-3">
+          // RATING
         </label>
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <motion.button
               key={star}
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setRating(rating === star ? 0 : star)}
-              className="text-2xl transition-transform"
+              className={`text-3xl transition-all ${
+                star <= rating 
+                  ? "drop-shadow-[0_0_8px_rgba(234,179,8,0.8)]" 
+                  : "opacity-40 hover:opacity-70"
+              }`}
             >
               {star <= rating ? "⭐" : "☆"}
             </motion.button>
@@ -98,50 +109,63 @@ export default function GameStatusEditor({
       </div>
 
       {/* Favorite */}
-      <div className="flex items-center gap-2">
+      <div>
+        <label className="block text-sm font-mono text-yellow-400 mb-3">
+          // LEGENDARY STATUS
+        </label>
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setIsFavorite(!isFavorite)}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+          className={`px-4 py-2 rounded font-mono text-sm transition-all border ${
             isFavorite
-              ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"
-              : "bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-slate-300"
+              ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/50"
+              : "bg-slate-800/50 text-slate-400 border-slate-700 hover:border-slate-600"
           }`}
         >
-          {isFavorite ? "⭐" : "☆"} Favorite
+          {isFavorite ? "⭐ LEGENDARY" : "☆ MARK AS LEGENDARY"}
         </motion.button>
       </div>
 
       {/* Hours Played */}
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-          Hours Played ⏱️
+        <label className="block text-sm font-mono text-cyan-400 mb-3">
+          // TIME INVESTED
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <input
             type="number"
             value={hoursPlayed}
             onChange={(e) => setHoursPlayed(Math.max(0, parseFloat(e.target.value) || 0))}
             placeholder="0"
-            className="flex-1 px-3 py-2 border border-slate-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-2 bg-slate-800/50 border border-cyan-500/30 rounded text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 font-mono transition-all"
             min="0"
             step="0.5"
           />
-          <span className="text-sm font-medium text-slate-600 dark:text-slate-400">hours</span>
+          <span className="text-sm font-mono text-cyan-400">HOURS</span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">Track how many hours you've spent on this game</p>
+        <p className="text-xs text-slate-500 mt-2 font-mono">Track your time in-game</p>
       </div>
 
       {/* Save Button */}
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         onClick={handleSave}
         disabled={isSaving}
-        className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-all"
+        className="relative w-full group"
       >
-        {isSaving ? "Saving..." : "Save Changes"}
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded opacity-50 group-hover:opacity-75 blur transition duration-300" />
+        <div className="relative px-4 py-3 bg-slate-900 rounded font-mono text-white border border-pink-500/30 group-hover:border-purple-500/30 transition-all">
+          {isSaving ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-2 h-2 bg-pink-400 rounded-full animate-pulse" />
+              SAVING...
+            </span>
+          ) : (
+            "SAVE CHANGES"
+          )}
+        </div>
       </motion.button>
     </motion.div>
   )

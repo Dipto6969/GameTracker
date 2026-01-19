@@ -80,9 +80,16 @@ export default function SearchPage() {
       transition={{ duration: 0.4 }}
       className="space-y-6"
     >
-      <div>
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Search Games</h2>
-        <p className="text-slate-600 dark:text-slate-400">Find and add games to your library from RAWG's database</p>
+      {/* Header */}
+      <div className="relative">
+        <div className="absolute top-0 left-0 w-24 h-px bg-gradient-to-r from-green-500 to-transparent" />
+        <p className="text-green-400 font-mono text-sm tracking-[0.3em] uppercase mb-2">// TARGET SCANNER</p>
+        <h2 className="text-3xl font-bold text-white mb-2">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-300">
+            ACQUIRE NEW TARGETS
+          </span>
+        </h2>
+        <p className="text-slate-400 font-light">Scan RAWG's database and add games to your arsenal</p>
       </div>
 
       <SearchInput value={query} onChange={setQuery} />
@@ -91,16 +98,38 @@ export default function SearchPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg p-12 text-center border border-blue-200 dark:border-blue-900"
+          className="relative group"
         >
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-600 dark:text-slate-400 text-lg"
-          >
-            🔍 Start typing to search for games...
-          </motion.p>
+          {/* Animated border */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500/30 via-emerald-500/30 to-green-500/30 rounded-lg opacity-50 group-hover:opacity-75 blur-sm transition duration-500" />
+          
+          <div className="relative bg-slate-900/80 rounded-lg p-12 text-center border border-green-500/30 backdrop-blur-sm">
+            {/* Corner decorations */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-green-500/70" />
+            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-green-500/70" />
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-green-500/70" />
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-green-500/70" />
+            
+            {/* Scan animation */}
+            <div className="absolute inset-0 overflow-hidden rounded-lg">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-green-500/5 to-transparent animate-[scanline_3s_linear_infinite]" />
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="relative"
+            >
+              <div className="text-5xl mb-4 filter drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]">🔍</div>
+              <p className="text-green-400 text-lg font-mono">
+                SCANNER READY
+              </p>
+              <p className="text-slate-500 text-sm mt-2">
+                Enter target name to begin scan...
+              </p>
+            </motion.div>
+          </div>
         </motion.div>
       )}
 
@@ -112,8 +141,12 @@ export default function SearchPage() {
             initial="hidden"
             animate="visible"
             exit={{ opacity: 0 }}
-            className="grid gap-4"
+            className="space-y-4"
           >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-green-400 font-mono text-sm">SCANNING DATABASE...</span>
+            </div>
             {[...Array(4)].map((_, i) => (
               <motion.div key={i} variants={itemVariants}>
                 <LoadingSkeleton variant="row" />
@@ -128,13 +161,21 @@ export default function SearchPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="bg-slate-100 dark:bg-neutral-800 rounded-lg p-8 text-center border border-slate-200 dark:border-neutral-700"
+            className="relative bg-slate-900/80 rounded-lg p-8 text-center border border-red-500/30"
           >
-            <div className="text-4xl mb-4">🔍</div>
-            <p className="text-slate-600 dark:text-slate-400">
-              No games found matching "<span className="font-semibold">{query}</span>"
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-red-500/50" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-red-500/50" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-red-500/50" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-500/50" />
+            
+            <div className="text-4xl mb-4">🚫</div>
+            <p className="text-red-400 font-mono">
+              NO TARGETS FOUND
             </p>
-            <p className="text-slate-500 dark:text-slate-500 text-sm mt-2">Try a different search term</p>
+            <p className="text-slate-500 text-sm mt-2">
+              Query: "<span className="text-red-300">{query}</span>" returned zero results
+            </p>
+            <p className="text-slate-600 text-xs mt-1">Try a different search term</p>
           </motion.div>
         )}
 
@@ -144,13 +185,14 @@ export default function SearchPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="bg-red-100 dark:bg-red-950 rounded-lg p-8 text-center border border-red-200 dark:border-red-900"
+            className="relative bg-slate-900/80 rounded-lg p-8 text-center border border-red-500/50"
           >
             <div className="text-4xl mb-4">⚠️</div>
-            <p className="text-red-700 dark:text-red-300">
-              Something went wrong while searching
+            <p className="text-red-400 font-mono font-bold">
+              SCAN ERROR
             </p>
-            <p className="text-red-600 dark:text-red-400 text-sm mt-2">Please try again</p>
+            <p className="text-red-300 text-sm mt-2">Connection to database failed</p>
+            <p className="text-slate-500 text-xs mt-1">Please try again</p>
           </motion.div>
         )}
 
@@ -161,16 +203,19 @@ export default function SearchPage() {
             initial="hidden"
             animate="visible"
             exit={{ opacity: 0 }}
-            className="space-y-3"
+            className="space-y-4"
           >
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="text-sm text-slate-600 dark:text-slate-400 font-medium"
+              className="flex items-center gap-3"
             >
-              Found {results.length} game{results.length !== 1 ? "s" : ""}
-            </motion.p>
+              <div className="w-2 h-2 bg-green-500 rounded-full" />
+              <span className="text-green-400 font-mono text-sm">
+                SCAN COMPLETE • {results.length} TARGET{results.length !== 1 ? "S" : ""} LOCATED
+              </span>
+            </motion.div>
             {results.map((game: any, index: number) => (
               <motion.div key={game.id} variants={itemVariants} custom={index}>
                 <GameSearchResult game={game} onAdd={() => handleAddGame(game)} />

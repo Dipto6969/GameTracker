@@ -53,7 +53,7 @@ export default function EnhancedAnalytics() {
   }
 
   if (!analytics) {
-    return <div className="text-center text-slate-600 dark:text-slate-400">Failed to load analytics</div>
+    return <div className="text-center text-red-400 font-mono">⚠ ANALYTICS OFFLINE</div>
   }
 
   return (
@@ -62,19 +62,28 @@ export default function EnhancedAnalytics() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-8"
     >
-      {/* Key Metrics Cards */}
+      {/* Section Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+        <h2 className="text-xl font-black text-white tracking-wider">
+          <span className="text-cyan-400">//</span> ANALYTICS HUB
+        </h2>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+      </div>
+
+      {/* Key Metrics Cards - Cyberpunk Style */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Total Games" value={analytics.totalGames} icon="🎮" color="blue" />
-        <MetricCard label="Completed" value={analytics.completedGames} icon="✅" color="green" subtext={`${analytics.completionRate}% done`} />
-        <MetricCard label="Playing Now" value={analytics.playingGames} icon="▶️" color="yellow" />
-        <MetricCard label="Total Hours" value={`${Math.round(analytics.totalHoursPlayed)}h`} icon="⏱️" color="purple" />
+        <MetricCard label="TOTAL GAMES" value={analytics.totalGames} icon="🎮" color="purple" />
+        <MetricCard label="CONQUERED" value={analytics.completedGames} icon="🏆" color="cyan" subtext={`${analytics.completionRate}% MASTERY`} />
+        <MetricCard label="ACTIVE" value={analytics.playingGames} icon="▶" color="green" />
+        <MetricCard label="TIME LOGGED" value={`${Math.round(analytics.totalHoursPlayed)}h`} icon="⚡" color="pink" />
       </div>
 
       {/* Second Row - More Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricCard label="Average Rating" value={`${analytics.averageRating}/5`} icon="⭐" color="yellow" />
-        <MetricCard label="Favorites" value={analytics.favoriteCount} icon="❤️" color="red" />
-        <MetricCard label="Backlog" value={analytics.backlogGames} icon="📋" color="blue" />
+        <MetricCard label="AVG RATING" value={`${analytics.averageRating}/5`} icon="★" color="yellow" />
+        <MetricCard label="FAVORITES" value={analytics.favoriteCount} icon="♥" color="red" />
+        <MetricCard label="BACKLOG" value={analytics.backlogGames} icon="◈" color="purple" />
       </div>
 
       {/* Charts Row 1 */}
@@ -84,9 +93,11 @@ export default function EnhancedAnalytics() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-slate-200 dark:border-neutral-700"
+          className="cyber-glass p-6 rounded-lg border border-purple-500/30"
         >
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Status Distribution</h3>
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span className="text-purple-400">◆</span> STATUS BREAKDOWN
+          </h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -102,7 +113,7 @@ export default function EnhancedAnalytics() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip contentStyle={{ backgroundColor: "#0a0a0f", border: "1px solid rgba(168, 85, 247, 0.3)", borderRadius: "8px", color: "#fff" }} />
             </PieChart>
           </ResponsiveContainer>
         </motion.div>
@@ -112,16 +123,18 @@ export default function EnhancedAnalytics() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-slate-200 dark:border-neutral-700"
+          className="cyber-glass p-6 rounded-lg border border-cyan-500/30"
         >
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Top Genres</h3>
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span className="text-cyan-400">◆</span> TOP GENRES
+          </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={analytics.genreStats.slice(0, 8)}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(168, 85, 247, 0.2)" />
               <XAxis dataKey="name" stroke="#9ca3af" angle={-45} textAnchor="end" height={100} />
               <YAxis stroke="#9ca3af" />
-              <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: "8px" }} />
-              <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+              <Tooltip contentStyle={{ backgroundColor: "#0a0a0f", border: "1px solid rgba(34, 211, 238, 0.3)", borderRadius: "8px", color: "#fff" }} />
+              <Bar dataKey="count" fill="#a855f7" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -135,16 +148,18 @@ export default function EnhancedAnalytics() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-slate-200 dark:border-neutral-700"
+            className="cyber-glass p-6 rounded-lg border border-green-500/30"
           >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Games Completed by Year</h3>
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-green-400">◆</span> YEARLY CONQUESTS
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={analytics.yearlyStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(57, 255, 20, 0.2)" />
                 <XAxis dataKey="year" stroke="#9ca3af" />
                 <YAxis stroke="#9ca3af" />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: "8px" }} />
-                <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} dot={{ fill: "#10b981" }} />
+                <Tooltip contentStyle={{ backgroundColor: "#0a0a0f", border: "1px solid rgba(57, 255, 20, 0.3)", borderRadius: "8px", color: "#fff" }} />
+                <Line type="monotone" dataKey="completed" stroke="#39ff14" strokeWidth={2} dot={{ fill: "#39ff14" }} />
               </LineChart>
             </ResponsiveContainer>
           </motion.div>
@@ -156,9 +171,11 @@ export default function EnhancedAnalytics() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-slate-200 dark:border-neutral-700"
+            className="cyber-glass p-6 rounded-lg border border-yellow-500/30"
           >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Your Top Rated Games</h3>
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <span className="text-yellow-400">◆</span> HALL OF FAME
+            </h3>
             <div className="space-y-3">
               {analytics.topRatedGames.map((game, idx) => (
                 <motion.div
@@ -166,14 +183,14 @@ export default function EnhancedAnalytics() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + idx * 0.1 }}
-                  className="flex items-center justify-between p-3 bg-slate-50 dark:bg-neutral-700 rounded-lg"
+                  className="flex items-center justify-between p-3 cyber-glass rounded-lg border border-yellow-500/20 hover:border-yellow-500/50 transition-colors"
                 >
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{game.name}</p>
+                    <p className="text-sm font-bold text-white truncate">{game.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-yellow-500">⭐</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{game.rating.toFixed(1)}/5</span>
+                    <span className="text-yellow-400">★</span>
+                    <span className="text-sm font-bold text-yellow-400">{game.rating.toFixed(1)}/5</span>
                   </div>
                 </motion.div>
               ))}
@@ -188,19 +205,21 @@ export default function EnhancedAnalytics() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white dark:bg-neutral-800 p-6 rounded-lg border border-slate-200 dark:border-neutral-700"
+          className="cyber-glass p-6 rounded-lg border border-pink-500/30"
         >
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Most Played Games</h3>
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <span className="text-pink-400">◆</span> TIME INVESTED
+          </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={analytics.mostPlayedGames}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 0, 255, 0.2)" />
               <XAxis dataKey="name" stroke="#9ca3af" angle={-45} textAnchor="end" height={100} />
-              <YAxis stroke="#9ca3af" label={{ value: "Hours", angle: -90, position: "insideLeft" }} />
+              <YAxis stroke="#9ca3af" label={{ value: "Hours", angle: -90, position: "insideLeft", fill: "#9ca3af" }} />
               <Tooltip
-                contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: "8px" }}
+                contentStyle={{ backgroundColor: "#0a0a0f", border: "1px solid rgba(255, 0, 255, 0.3)", borderRadius: "8px", color: "#fff" }}
                 formatter={(value) => [`${value}h`, "Hours Played"]}
               />
-              <Bar dataKey="hours" fill="#f59e0b" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="hours" fill="#ff00ff" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -213,14 +232,15 @@ export default function EnhancedAnalytics() {
         transition={{ delay: 0.7 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
-        <StatBox label="Backlog" value={analytics.backlogGames} description="games to play" icon="📋" />
-        <StatBox label="Dropped" value={analytics.droppedGames} description="games abandoned" icon="⛔" />
-        <StatBox label="Wishlist" value={analytics.wishlistGames} description="games wanted" icon="🎁" />
+        <StatBox label="BACKLOG" value={analytics.backlogGames} description="awaiting deployment" icon="◈" />
+        <StatBox label="DROPPED" value={analytics.droppedGames} description="missions aborted" icon="✕" />
+        <StatBox label="WISHLIST" value={analytics.wishlistGames} description="targets acquired" icon="★" />
       </motion.div>
     </motion.div>
   )
 }
 
+// Cyberpunk Metric Card
 function MetricCard({
   label,
   value,
@@ -235,40 +255,44 @@ function MetricCard({
   subtext?: string
 }) {
   const colorClasses = {
-    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800",
-    green: "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800",
-    yellow: "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
-    purple: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800",
-    red: "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800",
+    purple: "border-purple-500/40 hover:border-purple-500/80 text-purple-400",
+    cyan: "border-cyan-500/40 hover:border-cyan-500/80 text-cyan-400",
+    green: "border-green-500/40 hover:border-green-500/80 text-green-400",
+    pink: "border-pink-500/40 hover:border-pink-500/80 text-pink-400",
+    yellow: "border-yellow-500/40 hover:border-yellow-500/80 text-yellow-400",
+    red: "border-red-500/40 hover:border-red-500/80 text-red-400",
   }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`${colorClasses[color as keyof typeof colorClasses]} p-4 rounded-lg border`}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={`cyber-glass p-4 rounded-lg border ${colorClasses[color as keyof typeof colorClasses]} transition-all cursor-default`}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-3xl">{icon}</span>
-        <span className="text-2xl font-bold">{value}</span>
+        <span className="text-2xl">{icon}</span>
+        <span className="text-2xl font-black text-white">{value}</span>
       </div>
-      <p className="text-sm font-medium">{label}</p>
-      {subtext && <p className="text-xs opacity-75 mt-1">{subtext}</p>}
+      <p className="text-xs font-bold tracking-wider">{label}</p>
+      {subtext && <p className="text-[10px] opacity-60 mt-1 font-mono">{subtext}</p>}
     </motion.div>
   )
 }
 
+// Cyberpunk Stat Box
 function StatBox({ label, value, description, icon }: { label: string; value: number; description: string; icon: string }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-white dark:bg-neutral-800 p-4 rounded-lg border border-slate-200 dark:border-neutral-700 text-center"
+      whileHover={{ scale: 1.02 }}
+      className="cyber-glass p-4 rounded-lg border border-slate-700/50 hover:border-purple-500/50 text-center transition-all"
     >
-      <div className="text-3xl mb-2">{icon}</div>
-      <p className="text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
-      <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{label}</p>
-      <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">{description}</p>
+      <div className="text-2xl mb-2 text-purple-400">{icon}</div>
+      <p className="text-3xl font-black text-white">{value}</p>
+      <p className="text-xs font-bold text-purple-400 tracking-wider">{label}</p>
+      <p className="text-[10px] text-slate-500 mt-1 font-mono">{description}</p>
     </motion.div>
   )
 }

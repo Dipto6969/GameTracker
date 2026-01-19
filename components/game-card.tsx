@@ -2,13 +2,15 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { useState } from "react"
-import { Trash2, CheckCircle2, Plus, Heart } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { Trash2, CheckCircle2, Plus, Heart, Eye, Play, Pause } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import GameQuickViewModal from "./game-quick-view-modal"
 
 interface GameCardProps {
   game: {
     _id: string
+    id: number
     name: string
     background_image?: string
     released?: string
@@ -25,26 +27,160 @@ interface GameCardProps {
   onToggleSelection?: (id: string) => void
 }
 
+// Cyberpunk Status Colors
 const statusColors = {
-  playing: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  backlog: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  dropped: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-  wishlist: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+  playing: "status-playing",
+  completed: "status-completed",
+  backlog: "status-backlog",
+  dropped: "status-dropped",
+  wishlist: "status-wishlist",
 }
 
 const statusLabels = {
-  playing: "🎮 Playing",
-  completed: "✓ Completed",
-  backlog: "📋 Backlog",
-  dropped: "⛔ Dropped",
-  wishlist: "⭐ Wishlist",
+  playing: "▶ PLAYING",
+  completed: "✓ CONQUERED",
+  backlog: "◈ BACKLOG",
+  dropped: "✕ DROPPED",
+  wishlist: "★ WISHLIST",
 }
 
 export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", isSelected = false, onToggleSelection }: GameCardProps) {
   const { toast } = useToast()
   const [isRemoving, setIsRemoving] = useState(false)
   const [isMarking, setIsMarking] = useState(false)
+  const [showQuickView, setShowQuickView] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
+  const [isVideoLoading, setIsVideoLoading] = useState(false)
+  const [videoFetchAttempted, setVideoFetchAttempted] = useState(false)
+  const [showVideo, setShowVideo] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const imageTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Fetch video when hovered
+  useEffect(() => {
+    let cancelled = false
+    let timeoutId: NodeJS.Timeout
+    
+    // Only attempt to fetch once per game
+    if (isHovered && !videoUrl && !isVideoLoading && !videoFetchAttempted) {
+      setIsVideoLoading(true)
+      setVideoFetchAttempted(true)
+      
+      // Set a 8-second timeout to account for YouTube fallback
+      timeoutId = setTimeout(() => {
+        if (!cancelled) {
+          console.log('Video fetch timeout for game:', game.name)
+          setIsVideoLoading(false)
+        }
+      }, 8000)
+      
+      fetch(`/api/gameDetails/${game.id}`)
+        .then(res => {
+          if (!res.ok) throw new Error('API error')
+          return res.json()
+        })
+        .then(data => {
+          if (!cancelled) {
+            clearTimeout(timeoutId)
+            console.log('Video API Response:', {
+              game: game.name,
+              gameId: game._id,
+              success: data.success,
+              movieCount: data.game?.movies?.length,
+              movies: data.game?.movies,
+              clip: data.game?.clip,
+              firstMovie: data.game?.movies?.[0]
+            })
+            if (data.success && data.game) {
+              const video = data.game?.movies?.[0]?.video_480 || 
+                           data.game?.movies?.[0]?.video_max || 
+                           data.game?.clip?.video
+              if (video) {
+                console.log('Video URL found:', video)
+                setVideoUrl(video)
+                setIsVideoLoading(false)
+              } else {
+                console.log('No video URL found in API response, trying YouTube fallback...')
+                // Fallback to YouTube
+                fetch(`/api/youtube/search?game=${encodeURIComponent(game.name)}`)
+                  .then(res => res.json())
+                  .then(ytData => {
+                    if (!cancelled && ytData.success && ytData.videoUrl) {
+                      console.log('YouTube video found:', ytData.videoUrl)
+                      setVideoUrl(ytData.videoUrl)
+                    } else {
+                      console.log('No video found on YouTube either')
+                    }
+                  })
+                  .catch(err => console.log('YouTube fallback error:', err))
+                  .finally(() => {
+                    if (!cancelled) setIsVideoLoading(false)
+                  })
+              }
+            } else {
+              console.log('API response not successful or missing game data')
+              setIsVideoLoading(false)
+            }
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            clearTimeout(timeoutId)
+            console.log('Video fetch error for game:', game.name, err)
+            setIsVideoLoading(false)
+          }
+        })
+    }
+    
+    return () => { 
+      cancelled = true
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [isHovered, game.id, game.name, videoUrl, isVideoLoading, videoFetchAttempted])
+
+  // Auto-play video after 3 seconds (Amazon-style)
+  useEffect(() => {
+    // Reset when hover state changes
+    if (!isHovered) {
+      setShowVideo(false)
+      if (imageTimerRef.current) {
+        clearTimeout(imageTimerRef.current)
+        imageTimerRef.current = null
+      }
+      return
+    }
+    
+    // If we have a video and we're hovering, start the timer
+    if (videoUrl && isHovered && !showVideo) {
+      imageTimerRef.current = setTimeout(() => {
+        console.log('Auto-switching to video for:', game.name)
+        setShowVideo(true)
+      }, 3000)
+    }
+    
+    return () => {
+      if (imageTimerRef.current) {
+        clearTimeout(imageTimerRef.current)
+        imageTimerRef.current = null
+      }
+    }
+  }, [isHovered, videoUrl, showVideo, game.name])
+
+  // Auto-play when video becomes visible
+  useEffect(() => {
+    if (showVideo && videoRef.current && !videoUrl?.includes('youtube.com')) {
+      videoRef.current.play().catch((err) => {
+        console.log('Video play failed:', err)
+      })
+    }
+  }, [showVideo, videoUrl])
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowQuickView(true)
+  }
 
   const handleRemoveGame = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -70,7 +206,7 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
     e.stopPropagation()
     setIsMarking(true)
     try {
-      const res = await fetch(`/api/updateGame?id=${game._id}`, {
+      const res = await fetch(`/api/updateGame/${game._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: game.status === "completed" ? "backlog" : "completed" }),
@@ -96,7 +232,7 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
     e.preventDefault()
     e.stopPropagation()
     try {
-      const res = await fetch(`/api/updateGame?id=${game._id}`, {
+      const res = await fetch(`/api/updateGame/${game._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFavorite: !game.isFavorite }),
@@ -252,38 +388,100 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               title="Remove from library"
-              className="p-2 rounded transition-all bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800"
+              className="p-2 rounded transition-all bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 hover:border-red-500/50"
             >
               <Trash2 size={18} />
             </motion.button>
           </div>
         </motion.div>
       ) : (
-        // Grid View Layout
+        // Grid View Layout - Cyberpunk Style
+        <>
         <motion.div
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="group bg-white dark:bg-neutral-800 rounded-lg shadow hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer h-full"
+          whileHover={{ y: -6, transition: { duration: 0.2 } }}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
+          className="group cyber-glass cyber-card-glow rounded-lg overflow-hidden cursor-pointer h-full border border-purple-500/10 hover:border-purple-500/40"
         >
-        <div className="relative overflow-hidden bg-slate-200 dark:bg-neutral-700 h-48">
+        <div className="relative overflow-hidden bg-neutral-900 h-48">
+          {/* Background Image - always present */}
           {game.background_image ? (
             <>
               <motion.img
                 src={game.background_image || "/placeholder.svg"}
                 alt={game.name}
-                className="w-full h-full object-cover"
+                className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${showVideo && videoUrl ? 'opacity-0' : 'opacity-100'}`}
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.4 }}
               />
-              {/* Gradient Overlay */}
+              
+              {/* Video - fades in after 3 seconds or on hover */}
+              {videoUrl && isHovered && (
+                videoUrl.includes('youtube.com') ? (
+                  <iframe
+                    src={videoUrl}
+                    className={`absolute inset-0 w-full h-full z-10 transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
+                    frameBorder="0"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    ref={videoRef}
+                    src={videoUrl}
+                    className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
+                    muted
+                    loop
+                    playsInline
+                    onError={(e) => {
+                      console.log('Video element error:', e)
+                    }}
+                    onLoadStart={() => console.log('Video loading...')}
+                    onCanPlay={() => console.log('Video can play')}
+                  />
+                )
+              )}
+              
+              {/* Cyberpunk Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 z-20" />
               <motion.div
-                className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100"
+                className="absolute inset-0 bg-gradient-to-t from-purple-900/40 via-transparent to-cyan-900/20 opacity-0 group-hover:opacity-100 z-20"
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               />
+              {/* HUD Corner */}
+              <div className="absolute top-2 left-2 w-4 h-4 border-l border-t border-purple-500/50 opacity-0 group-hover:opacity-100 transition-opacity z-20" />
+              <div className="absolute top-2 right-2 w-4 h-4 border-r border-t border-cyan-500/50 opacity-0 group-hover:opacity-100 transition-opacity z-20" />
+              
+              {/* Video Loading Indicator */}
+              {isVideoLoading && isHovered && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-2">
+                  <div className="w-8 h-8 border-2 border-purple-500/50 border-t-purple-500 rounded-full animate-spin" />
+                  <span className="text-xs text-purple-400 font-mono">LOADING...</span>
+                </div>
+              )}
+              
+              {/* Video/Image Status Label */}
+              {videoUrl && isHovered && !isVideoLoading && (
+                <div className={`absolute top-2 right-2 z-30 px-2 py-1 text-white text-[10px] font-mono rounded border transition-all ${
+                  showVideo 
+                    ? 'bg-red-500/90 border-red-400/50' 
+                    : 'bg-slate-900/80 border-slate-600/50'
+                }`}>
+                  {showVideo ? '▶ PREVIEW' : '🖼 IMAGE'}
+                </div>
+              )}
+              
+              {/* No Video Available Message */}
+              {!videoUrl && !isVideoLoading && isHovered && videoFetchAttempted && (
+                <div className="absolute top-2 right-2 z-30 px-2 py-1 bg-slate-700/90 text-slate-300 text-[10px] font-mono rounded border border-slate-600/50">
+                  NO PREVIEW
+                </div>
+              )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400">No image</div>
+            <div className="w-full h-full flex items-center justify-center text-slate-600 font-mono text-xs">NO IMAGE</div>
           )}
 
           {/* Favorite Star */}
@@ -291,58 +489,69 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute top-2 right-2 text-yellow-400 text-2xl drop-shadow-lg"
+              className="absolute top-2 right-2 text-yellow-400 text-2xl drop-shadow-lg z-20"
             >
               ⭐
             </motion.div>
           )}
 
-          {/* Status Badge */}
+          {/* Status Badge - Cyberpunk */}
           {game.status && (
             <motion.div
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className={`absolute top-2 left-2 px-2 py-1 rounded text-xs font-medium ${statusColors[game.status] || ""}`}
+              className={`absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-bold tracking-wider z-20 ${statusColors[game.status] || ""}`}
             >
               {statusLabels[game.status] || game.status}
             </motion.div>
           )}
+          
+          {/* Quick View Button - appears on hover */}
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
+            onClick={handleQuickView}
+            className="absolute bottom-2 right-2 z-30 p-2 bg-cyan-500/80 hover:bg-cyan-400 text-white rounded transition-colors shadow-lg"
+            title="Quick View"
+          >
+            <Eye className="w-4 h-4" />
+          </motion.button>
         </div>
 
-        <div className="p-4 flex flex-col h-full">
-          <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <div className="p-4 flex flex-col h-full bg-gradient-to-b from-transparent to-black/20">
+          <h3 className="font-bold text-white line-clamp-2 group-hover:text-purple-400 transition-colors">
             {game.name}
           </h3>
 
-          <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400 flex-1">
-            {game.released && <p>{new Date(game.released).getFullYear()}</p>}
+          <div className="mt-2 space-y-1 text-sm text-slate-400 flex-1">
+            {game.released && <p className="font-mono text-xs text-slate-500">{new Date(game.released).getFullYear()}</p>}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {game.rating && (
-                <span className="flex items-center gap-1">
-                  ⭐ {game.rating.toFixed(1)}
+                <span className="flex items-center gap-1 text-yellow-500">
+                  ★ {game.rating.toFixed(1)}
                 </span>
               )}
               {game.userRating && (
-                <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400">
-                  👤 {game.userRating}
+                <span className="flex items-center gap-1 text-cyan-400 font-mono">
+                  {game.userRating}/5
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-500">
-              Added: {new Date(game.storedAt).toLocaleDateString()}
+            <p className="text-[10px] text-slate-600 font-mono">
+              + {new Date(game.storedAt).toLocaleDateString()}
             </p>
           </div>
 
-          {/* View Details Button */}
+          {/* View Details Button - Cyberpunk */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileHover={{ opacity: 1, y: 0 }}
-            className="mt-3 pt-3 border-t border-slate-200 dark:border-neutral-700"
+            className="mt-3 pt-3 border-t border-purple-500/20"
           >
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400 group-hover:underline">
-              View Details →
+            <span className="text-xs font-bold text-purple-400 group-hover:text-cyan-400 tracking-wider transition-colors">
+              ACCESS DATA →
             </span>
           </motion.div>
 
@@ -412,6 +621,15 @@ export default function GameCard({ game, onUpdate, onDelete, viewMode = "grid", 
           </motion.div>
         </div>
         </motion.div>
+        
+        {/* Quick View Modal */}
+        <GameQuickViewModal
+          gameId={game._id}
+          isOpen={showQuickView}
+          onClose={() => setShowQuickView(false)}
+          isInLibrary={true}
+        />
+        </>
       )}
     </Link>
   )

@@ -27,6 +27,7 @@ export interface StoredGame {
   hoursPlayed?: number // Hours spent on this game
   dateCompleted?: number // Timestamp when completed
   platforms_owned?: string[] // e.g., ["PC", "PS5", "Nintendo Switch"]
+  screenshots?: string[] // Cloudinary URLs of personal screenshots
 }
 
 // Try to use Vercel KV if available, otherwise fall back to file-based storage

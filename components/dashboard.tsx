@@ -47,7 +47,7 @@ export default function Dashboard({ games }: DashboardProps) {
     .sort((a, b) => Number(a.year) - Number(b.year))
     .slice(-10)
 
-  const COLORS = ["#2563eb", "#9333ea", "#7c3aed", "#a855f7", "#d946ef", "#ec4899", "#f43f5e"]
+  const COLORS = ["#a855f7", "#06b6d4", "#22c55e", "#f97316", "#ec4899", "#eab308", "#3b82f6"]
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,14 +77,24 @@ export default function Dashboard({ games }: DashboardProps) {
     >
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div variants={itemVariants} className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
-          <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">Total Games</p>
-          <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{totalGames}</p>
+        <motion.div variants={itemVariants} className="relative bg-slate-900/80 rounded-lg p-6 border border-purple-500/50 overflow-hidden group">
+          {/* Corner decorations */}
+          <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500" />
+          <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500" />
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <p className="text-sm font-mono text-purple-400 mb-2">// TOTAL TARGETS</p>
+          <p className="text-4xl font-bold text-purple-300 font-mono">{totalGames}</p>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 rounded-lg p-6 border border-purple-200 dark:border-purple-800">
-          <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-2">Average Rating</p>
-          <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">⭐ {averageRating}</p>
+        <motion.div variants={itemVariants} className="relative bg-slate-900/80 rounded-lg p-6 border border-cyan-500/50 overflow-hidden group">
+          {/* Corner decorations */}
+          <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500" />
+          <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500" />
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <p className="text-sm font-mono text-cyan-400 mb-2">// AVG RATING</p>
+          <p className="text-4xl font-bold text-cyan-300 font-mono">⭐ {averageRating}</p>
         </motion.div>
       </div>
 
@@ -92,16 +102,20 @@ export default function Dashboard({ games }: DashboardProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Genre Pie Chart */}
         {genreData.length > 0 && (
-          <motion.div variants={itemVariants} className="bg-white dark:bg-neutral-800 rounded-lg p-6 border border-slate-200 dark:border-neutral-700 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Top Genres</h3>
+          <motion.div variants={itemVariants} className="relative bg-slate-900/80 rounded-lg p-6 border border-purple-500/30">
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500/50" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500/50" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500/50" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500/50" />
+            <h3 className="text-sm font-mono text-purple-400 mb-4">// TOP GENRES</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={genreData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name} (${value})`} outerRadius={80} fill="#8884d8" dataKey="value">
+                <Pie data={genreData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name} (${value})`} outerRadius={80} fill="#a855f7" dataKey="value" stroke="#0f172a">
                   {genreData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  ))}  
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #a855f7', borderRadius: '8px', color: '#e2e8f0' }} />
               </PieChart>
             </ResponsiveContainer>
           </motion.div>
@@ -109,15 +123,19 @@ export default function Dashboard({ games }: DashboardProps) {
 
         {/* Year Bar Chart */}
         {yearData.length > 0 && (
-          <motion.div variants={itemVariants} className="bg-white dark:bg-neutral-800 rounded-lg p-6 border border-slate-200 dark:border-neutral-700 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Games by Year</h3>
+          <motion.div variants={itemVariants} className="relative bg-slate-900/80 rounded-lg p-6 border border-cyan-500/30">
+            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500/50" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500/50" />
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500/50" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500/50" />
+            <h3 className="text-sm font-mono text-cyan-400 mb-4">// GAMES BY YEAR</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={yearData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="year" stroke="#64748b" />
                 <YAxis stroke="#64748b" />
-                <Tooltip />
-                <Bar dataKey="count" fill="#2563eb" radius={[8, 8, 0, 0]} />
+                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #06b6d4', borderRadius: '8px', color: '#e2e8f0' }} />
+                <Bar dataKey="count" fill="#06b6d4" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>

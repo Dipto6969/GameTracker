@@ -114,20 +114,26 @@ export function GameAnnouncementsPanel() {
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
           >
             <div
-              className="bg-white dark:bg-neutral-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+              className="bg-slate-900/95 backdrop-blur-sm border border-orange-500/50 rounded-xl shadow-[0_0_40px_rgba(249,115,22,0.2)] max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col relative"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Corner decorations */}
+              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-orange-500" />
+              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-orange-500" />
+              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-orange-500" />
+              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-orange-500" />
+
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-900">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-orange-500/30 bg-slate-800/50">
                 <div className="flex items-center gap-3">
-                  <Bell className="text-blue-500" size={24} />
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Game Announcements</h2>
+                  <Bell className="text-orange-400" size={24} />
+                  <h2 className="text-lg font-mono text-orange-400">// INCOMING TRANSMISSIONS</h2>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-red-500/20 border border-transparent hover:border-red-500/50 rounded transition-colors"
                 >
-                  <X size={24} className="text-slate-600 dark:text-slate-400" />
+                  <X size={20} className="text-red-400" />
                 </button>
               </div>
 
@@ -136,20 +142,20 @@ export function GameAnnouncementsPanel() {
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="text-center">
-                      <div className="w-12 h-12 border-4 border-slate-200 dark:border-neutral-700 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
-                      <p className="text-slate-600 dark:text-slate-400">Loading upcoming games...</p>
+                      <div className="w-12 h-12 border-4 border-slate-700 border-t-orange-500 rounded-full animate-spin mx-auto mb-4" />
+                      <p className="text-orange-400 font-mono">SCANNING FOR INCOMING DATA...</p>
                     </div>
                   </div>
                 ) : error ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="text-center">
-                      <p className="text-red-600 dark:text-red-400 mb-2">Error loading announcements</p>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">{error}</p>
+                      <p className="text-red-400 mb-2 font-mono">// TRANSMISSION ERROR</p>
+                      <p className="text-slate-500 text-sm font-mono">{error}</p>
                     </div>
                   </div>
                 ) : games.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
-                    <p className="text-slate-600 dark:text-slate-400">No upcoming games at this time</p>
+                    <p className="text-slate-500 font-mono">NO INCOMING TRANSMISSIONS</p>
                   </div>
                 ) : (
                   <motion.div className="space-y-3">
@@ -166,7 +172,7 @@ export function GameAnnouncementsPanel() {
                           transition={{ delay: idx * 0.05 }}
                         >
                           <Link href={`/game/${game.id}`} onClick={() => setIsOpen(false)}>
-                            <div className="group relative bg-slate-50 dark:bg-neutral-700/50 hover:bg-slate-100 dark:hover:bg-neutral-700 border border-slate-200 dark:border-neutral-600 rounded-lg overflow-hidden transition-all cursor-pointer">
+                            <div className="group relative bg-slate-800/50 hover:bg-orange-500/10 border border-slate-700/50 hover:border-orange-500/50 rounded-lg overflow-hidden transition-all cursor-pointer">
                               <div className="flex gap-4 p-4">
                                 {/* Game Image */}
                                 <div className="shrink-0 w-24 h-24">
@@ -174,11 +180,11 @@ export function GameAnnouncementsPanel() {
                                     <img
                                       src={game.background_image}
                                       alt={game.name}
-                                      className="w-full h-full object-cover rounded group-hover:scale-105 transition-transform duration-300"
+                                      className="w-full h-full object-cover rounded border border-slate-700/50 group-hover:border-orange-500/50 group-hover:scale-105 transition-all duration-300"
                                     />
                                   ) : (
-                                    <div className="w-full h-full bg-slate-200 dark:bg-neutral-600 rounded flex items-center justify-center text-xs">
-                                      No image
+                                    <div className="w-full h-full bg-slate-700 rounded flex items-center justify-center text-xs text-slate-500 font-mono">
+                                      NO IMG
                                     </div>
                                   )}
                                 </div>
@@ -187,30 +193,30 @@ export function GameAnnouncementsPanel() {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-start justify-between gap-2">
                                     <div>
-                                      <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                      <h3 className="font-medium text-slate-200 line-clamp-2 group-hover:text-orange-400 transition-colors">
                                         {game.name}
                                       </h3>
                                     </div>
                                     {isComingSoon && !isReleased && (
-                                      <span className="shrink-0 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-semibold rounded">
-                                        Soon
+                                      <span className="shrink-0 px-2 py-1 bg-orange-500/20 border border-orange-500/50 text-orange-400 text-xs font-mono rounded">
+                                        SOON
                                       </span>
                                     )}
                                     {isReleased && (
-                                      <span className="shrink-0 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold rounded">
-                                        Out Now
+                                      <span className="shrink-0 px-2 py-1 bg-green-500/20 border border-green-500/50 text-green-400 text-xs font-mono rounded">
+                                        LIVE
                                       </span>
                                     )}
                                   </div>
 
-                                  <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                    <div className="flex items-center gap-1">
-                                      <Calendar size={16} />
+                                  <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                                    <div className="flex items-center gap-1 font-mono">
+                                      <Calendar size={14} />
                                       <span>{formatDate(game.released || '')}</span>
                                     </div>
                                     {daysUntil && daysUntil > 0 && (
-                                      <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
-                                        {daysUntil} day{daysUntil !== 1 ? 's' : ''} away
+                                      <span className="text-xs bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 px-2 py-1 rounded font-mono">
+                                        T-{daysUntil}D
                                       </span>
                                     )}
                                   </div>
@@ -221,7 +227,7 @@ export function GameAnnouncementsPanel() {
                                       {game.genres.slice(0, 2).map((genre) => (
                                         <span
                                           key={genre.id}
-                                          className="text-xs bg-slate-200 dark:bg-neutral-600 text-slate-700 dark:text-slate-300 px-2 py-1 rounded"
+                                          className="text-xs bg-slate-700/50 text-slate-400 px-2 py-1 rounded font-mono"
                                         >
                                           {genre.name}
                                         </span>
@@ -231,8 +237,8 @@ export function GameAnnouncementsPanel() {
 
                                   {/* Rating */}
                                   {game.rating && (
-                                    <div className="mt-2 text-sm">
-                                      <span className="text-yellow-500">⭐ {game.rating.toFixed(1)}</span>
+                                    <div className="mt-2 text-sm font-mono">
+                                      <span className="text-yellow-400">⭐ {game.rating.toFixed(1)}</span>
                                     </div>
                                   )}
                                 </div>
@@ -257,13 +263,13 @@ export function GameAnnouncementsPanel() {
       {/* Announcement Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="relative flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-700 rounded-lg transition-colors"
+        className="relative flex items-center gap-2 px-3 py-2 text-sm font-mono text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 hover:border-orange-500/50 rounded transition-all"
         title="View game announcements and upcoming releases"
       >
-        <Bell size={18} className="text-blue-500" />
-        <span className="hidden sm:inline">Announcements</span>
+        <Bell size={16} className="text-orange-400" />
+        <span className="hidden sm:inline">TRANSMIT</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center border border-red-400/50 animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

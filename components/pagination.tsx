@@ -81,8 +81,8 @@ export default function Pagination({
       className="flex flex-col items-center gap-4 py-8"
     >
       {/* Items info */}
-      <p className="text-sm text-slate-600 dark:text-slate-400">
-        Showing {startItem} to {endItem} of {totalItems} games
+      <p className="text-sm text-slate-400 font-mono">
+        DISPLAYING {startItem}-{endItem} OF {totalItems} TARGETS
       </p>
 
       {/* Pagination controls */}
@@ -93,14 +93,14 @@ export default function Pagination({
           disabled={currentPage === 1}
           whileHover={currentPage > 1 ? { scale: 1.05 } : {}}
           whileTap={currentPage > 1 ? { scale: 0.95 } : {}}
-          className={`flex items-center gap-1 px-3 py-2 rounded-lg font-medium transition-all ${
+          className={`flex items-center gap-1 px-3 py-2 rounded font-mono text-sm transition-all border ${
             currentPage === 1
-              ? "bg-slate-100 dark:bg-neutral-700 text-slate-400 dark:text-slate-500 cursor-not-allowed"
-              : "bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-600"
+              ? "bg-slate-800/50 border-slate-700/50 text-slate-600 cursor-not-allowed"
+              : "bg-purple-500/20 border-purple-500/50 text-purple-400 hover:bg-purple-500/30"
           }`}
         >
           <ChevronLeft size={18} />
-          <span className="hidden sm:inline">Previous</span>
+          <span className="hidden sm:inline">PREV</span>
         </motion.button>
 
         {/* Page numbers */}
@@ -117,12 +117,12 @@ export default function Pagination({
               whileHover={typeof page === "number" ? { scale: 1.05 } : {}}
               whileTap={typeof page === "number" ? { scale: 0.95 } : {}}
               disabled={typeof page === "string"}
-              className={`px-3 py-2 rounded-lg font-medium transition-all ${
+              className={`px-3 py-2 rounded font-mono text-sm transition-all border ${
                 page === currentPage
-                  ? "bg-blue-600 text-white"
+                  ? "bg-purple-500/30 border-purple-500 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                   : typeof page === "string"
-                    ? "text-slate-400 dark:text-slate-500 cursor-default"
-                    : "bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-600"
+                    ? "text-slate-600 cursor-default border-transparent"
+                    : "bg-slate-800/50 border-slate-700/50 text-slate-400 hover:border-purple-500/50 hover:text-purple-400"
               }`}
             >
               {page}
@@ -136,21 +136,21 @@ export default function Pagination({
           disabled={currentPage === totalPages}
           whileHover={currentPage < totalPages ? { scale: 1.05 } : {}}
           whileTap={currentPage < totalPages ? { scale: 0.95 } : {}}
-          className={`flex items-center gap-1 px-3 py-2 rounded-lg font-medium transition-all ${
+          className={`flex items-center gap-1 px-3 py-2 rounded font-mono text-sm transition-all border ${
             currentPage === totalPages
-              ? "bg-slate-100 dark:bg-neutral-700 text-slate-400 dark:text-slate-500 cursor-not-allowed"
-              : "bg-slate-100 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-600"
+              ? "bg-slate-800/50 border-slate-700/50 text-slate-600 cursor-not-allowed"
+              : "bg-purple-500/20 border-purple-500/50 text-purple-400 hover:bg-purple-500/30"
           }`}
         >
-          <span className="hidden sm:inline">Next</span>
+          <span className="hidden sm:inline">NEXT</span>
           <ChevronRight size={18} />
         </motion.button>
       </div>
 
       {/* Items per page selector */}
       <div className="flex items-center gap-2">
-        <label htmlFor="items-per-page" className="text-sm text-slate-600 dark:text-slate-400">
-          Games per page:
+        <label htmlFor="items-per-page" className="text-sm text-slate-500 font-mono">
+          PER PAGE:
         </label>
         <select
           id="items-per-page"
@@ -162,7 +162,7 @@ export default function Pagination({
             })
             window.dispatchEvent(event)
           }}
-          className="px-2 py-1 border border-slate-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-1.5 border border-purple-500/50 rounded text-sm bg-slate-800/80 text-purple-300 font-mono focus:outline-none focus:ring-1 focus:ring-purple-500"
         >
           <option value={10}>10</option>
           <option value={15}>15</option>

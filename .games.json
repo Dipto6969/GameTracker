@@ -2055,6 +2055,11 @@
     "status": "completed",
     "userRating": null,
     "isFavorite": false,
-    "hoursPlayed": 16
+    "hoursPlayed": 16,
+    "screenshots": [
+      "https://res.cloudinary.com/dcjxfihys/image/upload/v1768716361/gametracker/7689/qrjzf2zueishmmp2od7y.jpg",
+      "https://res.cloudinary.com/dcjxfihys/image/upload/v1768716414/gametracker/7689/qmvufxfpp4tfplvgqyfz.webp",
+      "https://res.cloudinary.com/dcjxfihys/image/upload/v1768716771/gametracker/7689/t8qu8t7hdib5mwgskx7b.jpg"
+    ]
   }
 ]

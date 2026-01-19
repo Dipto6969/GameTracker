@@ -3,6 +3,7 @@
 import useSWR from "swr"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import GameCard from "@/components/game-card"
 import LoadingSkeleton from "@/components/loading-skeleton"
 import HeroSection from "@/components/hero-section"
@@ -12,6 +13,7 @@ import { HelpModal } from "@/components/help-modal"
 import RecentlyViewedSidebar from "@/components/recently-viewed-sidebar"
 import Pagination from "@/components/pagination"
 import BulkActionsToolbar from "@/components/bulk-actions-toolbar"
+import { FileDown } from "lucide-react"
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts"
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 import { useBulkSelection } from "@/hooks/use-bulk-selection"
@@ -264,7 +266,7 @@ export default function HomePage() {
             </motion.div>
           )}
 
-          {/* Library Section */}
+          {/* Library Section - Cyberpunk */}
           <motion.div
             id="library"
             initial={{ opacity: 0 }}
@@ -274,80 +276,92 @@ export default function HomePage() {
           >
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Your Games</h2>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
-              {sortedGames?.length || 0} game{sortedGames?.length !== 1 ? "s" : ""} tracked
+            <h2 className="text-3xl font-black text-white flex items-center gap-3">
+              <span className="text-purple-400">//</span>
+              YOUR ARSENAL
+            </h2>
+            <p className="text-slate-500 mt-1 font-mono text-sm">
+              <span className="text-cyan-400">{sortedGames?.length || 0}</span> game{sortedGames?.length !== 1 ? "s" : ""} in database
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/export">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="cyber-button px-4 py-2 rounded-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white transition-all flex items-center gap-2 border border-purple-400/30"
+              >
+                <FileDown className="w-4 h-4" />
+                EXPORT
+              </motion.button>
+            </Link>
             <motion.button
               whileHover={{ scale: 1.05 }}
               onClick={() => setViewMode("grid")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`cyber-button px-4 py-2 rounded-lg font-bold transition-all ${
                 viewMode === "grid"
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-200 dark:bg-neutral-700 text-slate-700 dark:text-slate-300"
+                  ? "bg-purple-600/30 text-purple-400 border border-purple-500/50"
+                  : "bg-transparent text-slate-400 border border-slate-700 hover:border-purple-500/50"
               }`}
             >
-              ⊞ Grid
+              ⊞ GRID
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               onClick={() => setViewMode("list")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`cyber-button px-4 py-2 rounded-lg font-bold transition-all ${
                 viewMode === "list"
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-200 dark:bg-neutral-700 text-slate-700 dark:text-slate-300"
+                  ? "bg-cyan-600/30 text-cyan-400 border border-cyan-500/50"
+                  : "bg-transparent text-slate-400 border border-slate-700 hover:border-cyan-500/50"
               }`}
             >
-              ≡ List
+              ≡ LIST
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               onClick={() => setHelpOpen(true)}
-              className="px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 transition-all"
+              className="cyber-button px-4 py-2 rounded-lg font-bold bg-transparent text-slate-400 border border-slate-700 hover:border-green-500/50 hover:text-green-400 transition-all"
               title="Press ? for keyboard shortcuts"
             >
-              ? Help
+              ? HELP
             </motion.button>
             {sortBy === "recent" && !filterGenre && !filterStatus && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={() => {
                   // Reset order will be implemented later
-                  toast({ title: "Order reset to default", description: "Games returned to recent order" })
+                  toast({ title: "Order reset", description: "Returned to default order" })
                 }}
-                className="px-4 py-2 rounded-lg font-medium bg-slate-200 dark:bg-neutral-700 text-slate-700 dark:text-slate-300 transition-all text-sm"
+                className="cyber-button px-4 py-2 rounded-lg font-bold bg-transparent text-slate-400 border border-slate-700 hover:border-pink-500/50 hover:text-pink-400 transition-all text-sm"
                 title="Reset to default order"
               >
-                ↻ Reset Order
+                ↻ RESET
               </motion.button>
             )}
           </div>
         </div>
 
-        {/* Filters & Sort */}
+        {/* Filters & Sort - Cyberpunk */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-3 py-2 border border-slate-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="cyber-glass px-3 py-2 border border-purple-500/30 rounded-lg text-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
           >
-            <option value="recent">Sort: Recently Added</option>
-            <option value="favorites">Sort: Favorites First</option>
-            <option value="name">Sort: Name (A-Z)</option>
+            <option value="recent" className="bg-neutral-900">SORT: RECENT</option>
+            <option value="favorites" className="bg-neutral-900">SORT: FAVORITES</option>
+            <option value="name" className="bg-neutral-900">SORT: A-Z</option>
           </select>
 
           {genres.size > 0 && (
             <select
               value={filterGenre}
               onChange={(e) => setFilterGenre(e.target.value)}
-              className="px-3 py-2 border border-slate-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="cyber-glass px-3 py-2 border border-cyan-500/30 rounded-lg text-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
             >
-              <option value="">All Genres</option>
+              <option value="" className="bg-neutral-900">ALL GENRES</option>
               {Array.from(genres).map((genre) => (
-                <option key={genre} value={genre}>
-                  {genre}
+                <option key={genre} value={genre} className="bg-neutral-900">
+                  {genre.toUpperCase()}
                 </option>
               ))}
             </select>
@@ -356,14 +370,14 @@ export default function HomePage() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-slate-300 dark:border-neutral-600 rounded-lg text-sm bg-white dark:bg-neutral-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="cyber-glass px-3 py-2 border border-green-500/30 rounded-lg text-sm bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
           >
-            <option value="">All Status</option>
-            <option value="playing">Playing</option>
-            <option value="completed">Completed</option>
-            <option value="backlog">Backlog</option>
-            <option value="dropped">Dropped</option>
-            <option value="wishlist">Wishlist</option>
+            <option value="" className="bg-neutral-900">ALL STATUS</option>
+            <option value="playing" className="bg-neutral-900">▶ PLAYING</option>
+            <option value="completed" className="bg-neutral-900">✓ COMPLETED</option>
+            <option value="backlog" className="bg-neutral-900">◈ BACKLOG</option>
+            <option value="dropped" className="bg-neutral-900">✕ DROPPED</option>
+            <option value="wishlist" className="bg-neutral-900">★ WISHLIST</option>
           </select>
         </div>
 
@@ -374,8 +388,8 @@ export default function HomePage() {
             ))}
           </div>
         ) : error ? (
-          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg p-4 text-red-700 dark:text-red-200">
-            Error loading games. Please try again.
+          <div className="cyber-glass border border-red-500/50 rounded-lg p-4 text-red-400 font-mono">
+            ⚠ ERROR: Failed to load games. Please try again.
           </div>
         ) : !games || games.length === 0 ? (
           <EmptyLibraryState />
