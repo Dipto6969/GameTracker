@@ -113,7 +113,18 @@ export default function EnhancedAnalytics() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: "#0a0a0f", border: "1px solid rgba(168, 85, 247, 0.3)", borderRadius: "8px", color: "#fff" }} />
+              <Tooltip
+  contentStyle={{
+    backgroundColor: "#0a0a0f",
+    border: "1px solid rgba(168, 85, 247, 0.3)",
+    borderRadius: "8px",
+    color: "#fff",
+  }}
+  labelStyle={{ color: "#fff" }}
+  itemStyle={{ color: "#fff" }}
+  formatter={(value, name) => [value, name]}
+/>
+
             </PieChart>
           </ResponsiveContainer>
         </motion.div>

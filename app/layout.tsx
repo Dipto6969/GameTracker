@@ -40,6 +40,9 @@ export default function RootLayout({
                   <a href="/search" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all text-sm font-bold tracking-wide">
                     SEARCH
                   </a>
+                  <a href="/news" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-pink-400 hover:bg-pink-500/10 transition-all text-sm font-bold tracking-wide">
+                    NEWS
+                  </a>
                   <a href="/about" className="cyber-button px-3 py-2 rounded text-slate-400 hover:text-green-400 hover:bg-green-500/10 transition-all text-sm font-bold tracking-wide">
                     ABOUT
                   </a>

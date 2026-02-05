@@ -39,7 +39,43 @@ pnpm dev
 
 ---
 
-## 📚 Full Documentation:
+## � To Use Gaming News Feature:
+
+### 1. Get NewsAPI Key (2 minutes):
+```bash
+# 1. Sign up at: https://newsapi.org/register
+# 2. Copy your API key from the dashboard
+# 3. Add to .env.local:
+```
+
+Edit `.env.local`:
+```env
+NEWS_API_KEY=your-newsapi-key-here
+```
+
+### 2. Restart Server:
+```bash
+# Stop server (Ctrl+C), then:
+pnpm dev
+```
+
+### 3. That's it!
+Click **"NEWS"** in the navigation bar to access the Gaming News page with:
+- Latest gaming headlines from top sources
+- **Advanced Filters:**
+  - 🔍 Keyword search (e.g., "Elden Ring", "GTA 6")
+  - 📅 Date range (Last 24h, 7 days, 30 days, All)
+  - 🎮 Category (Releases, Updates, Esports, Industry, Reviews)
+  - 🖥️ Platform (PC, PlayStation, Xbox, Nintendo, Mobile)
+  - 📊 Sort by (Newest, Oldest, Most Relevant)
+- Load more pagination
+- Cached for 1 hour (to save API calls)
+
+**Note:** Free tier = 100 requests/day. We cache aggressively to stay well under this limit.
+
+---
+
+## �📚 Full Documentation:
 
 - **`CLOUDINARY_SETUP.md`** - Complete Cloudinary setup guide
 - **`IMPLEMENTATION_GUIDE.md`** - Features overview & testing
