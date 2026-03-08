@@ -125,7 +125,7 @@ export function TrendingGamesModal() {
                   <h2 className="text-2xl font-bold text-white font-mono">
                     <span className="text-orange-400">//</span> TRENDING TARGETS
                   </h2>
-                  <span className="text-sm text-slate-500 font-mono">TOP RATED</span>
+                  <span className="text-sm text-slate-500 font-mono">TRENDING NOW</span>
                 </div>
                 <button
                   onClick={handleClose}

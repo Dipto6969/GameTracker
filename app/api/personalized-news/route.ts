@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAllGames } from "@/lib/kv"
+import { fetchRSSNews } from "@/lib/rss-parser"
 
 // Cache duration in seconds
 const CACHE_DURATION = 3600
@@ -315,13 +316,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10", 10)
     
     const apiKey = process.env.NEWS_API_KEY
-    
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "NEWS_API_KEY not configured" },
-        { status: 500 }
-      )
-    }
 
     const now = Date.now()
     const cacheKey = "personalized"
@@ -357,81 +351,112 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 3. Build personalized search query
-    // Include user's game names (up to 5 most recent) and genres
-    const topGames = userGameNames.slice(0, 5)
-    const topGenres = userGenres.slice(0, 3)
-    
-    // Build query terms
-    const queryTerms: string[] = [
-      '"video games"',
-      '"game release"',
-      ...topGames.map(g => `"${g}"`),
-      ...topGenres.map(g => g.toLowerCase())
-    ]
-    
-    const query = encodeURIComponent(
-      queryTerms.join(" OR ") + " -sports -betting -casino -poker -nfl -nba -mlb"
-    )
-    
-    const domains = GAMING_DOMAINS.join(",")
-    
-    // Calculate date range (last 14 days for personalized)
-    const fromDate = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
-    const fromParam = `&from=${fromDate.toISOString().split('T')[0]}`
-    
-    const newsApiUrl = `https://newsapi.org/v2/everything?q=${query}&domains=${domains}&language=en&sortBy=publishedAt&pageSize=100${fromParam}&apiKey=${apiKey}`
-    
-    const response = await fetch(newsApiUrl, {
-      headers: { "User-Agent": "GameTracker/1.0" },
-      next: { revalidate: refresh ? 0 : CACHE_DURATION }
-    })
-
+    // 3. Fetch news - try NewsAPI first, fall back to RSS
     let articles: NewsArticle[] = []
+    let newsApiFailed = false
     
-    if (response.ok) {
-      const data = await response.json()
-      
-      // Transform and score articles
-      articles = data.articles
-        .filter((article: any) => {
-          const lowTitle = article.title?.toLowerCase() || ""
-          const lowDesc = article.description?.toLowerCase() || ""
-          
-          // Filter out junk
-          const isJunk = 
-            !article.title || 
-            !article.description ||
-            article.title.includes("[Removed]") ||
-            lowTitle.includes("nba") ||
-            lowTitle.includes("nfl") ||
-            lowTitle.includes("betting") ||
-            lowTitle.includes("promo code")
-          
-          return !isJunk && article.description.length > 20
+    if (apiKey) {
+      try {
+        const topGames = userGameNames.slice(0, 5)
+        const topGenres = userGenres.slice(0, 3)
+        
+        const queryTerms: string[] = [
+          '"video games"',
+          '"game release"',
+          ...topGames.map(g => `"${g}"`),
+          ...topGenres.map(g => g.toLowerCase())
+        ]
+        
+        const query = encodeURIComponent(
+          queryTerms.join(" OR ") + " -sports -betting -casino -poker -nfl -nba -mlb"
+        )
+        
+        const domains = GAMING_DOMAINS.join(",")
+        const fromDate = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+        const fromParam = `&from=${fromDate.toISOString().split('T')[0]}`
+        
+        const newsApiUrl = `https://newsapi.org/v2/everything?q=${query}&domains=${domains}&language=en&sortBy=publishedAt&pageSize=100${fromParam}&apiKey=${apiKey}`
+        
+        const response = await fetch(newsApiUrl, {
+          headers: { "User-Agent": "GameTracker/1.0" },
         })
-        .map((article: any, index: number) => {
+
+        if (response.ok) {
+          const data = await response.json()
+          
+          articles = data.articles
+            .filter((article: any) => {
+              const lowTitle = article.title?.toLowerCase() || ""
+              const isJunk = 
+                !article.title || 
+                !article.description ||
+                article.title.includes("[Removed]") ||
+                lowTitle.includes("nba") ||
+                lowTitle.includes("nfl") ||
+                lowTitle.includes("betting") ||
+                lowTitle.includes("promo code")
+              
+              return !isJunk && article.description.length > 20
+            })
+            .map((article: any, index: number) => {
+              const { score, reason } = calculateArticleRelevance(
+                { title: article.title, description: article.description },
+                userGameNames,
+                userGenres
+              )
+              
+              return {
+                id: `pnews-${Date.now()}-${index}`,
+                title: article.title,
+                description: article.description || "",
+                source: article.source.name,
+                publishedAt: article.publishedAt,
+                url: article.url,
+                imageUrl: article.urlToImage || undefined,
+                matchReason: reason,
+                relevanceScore: score
+              }
+            })
+          console.log(`[Personalized] Got ${articles.length} from NewsAPI`)
+        } else {
+          console.log("[Personalized] NewsAPI failed with status:", response.status)
+          newsApiFailed = true
+        }
+      } catch (err) {
+        console.log("[Personalized] NewsAPI error:", (err as Error).message)
+        newsApiFailed = true
+      }
+    } else {
+      newsApiFailed = true
+    }
+    
+    // Fallback: Use RSS feeds if NewsAPI failed or returned nothing
+    if (newsApiFailed || articles.length === 0) {
+      console.log("[Personalized] Falling back to RSS feeds...")
+      const rssItems = await fetchRSSNews()
+      
+      articles = rssItems
+        .filter(item => item.title && item.description.length > 10)
+        .map((item, index) => {
           const { score, reason } = calculateArticleRelevance(
-            { title: article.title, description: article.description },
+            { title: item.title, description: item.description },
             userGameNames,
             userGenres
           )
           
           return {
             id: `pnews-${Date.now()}-${index}`,
-            title: article.title,
-            description: article.description || "",
-            source: article.source.name,
-            publishedAt: article.publishedAt,
-            url: article.url,
-            imageUrl: article.urlToImage || undefined,
+            title: item.title,
+            description: item.description || "",
+            source: item.source,
+            publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+            url: item.link,
+            imageUrl: item.imageUrl,
             matchReason: reason,
             relevanceScore: score
           }
         })
-    } else if (cached) {
-      // Use cached data on error
-      return NextResponse.json(cached.news)
+      console.log(`[Personalized] Got ${articles.length} from RSS`)
     }
     
     // 4. Sort by relevance score, then by date
